@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Beat-Prep</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='13' fill='%23000'/%3E%3Cg fill='%23ebe5b0'%3E%3Crect x='10' y='38' width='6' height='16' rx='2'/%3E%3Crect x='21' y='28' width='6' height='26' rx='2'/%3E%3Crect x='32' y='14' width='6' height='40' rx='2'/%3E%3Crect x='43' y='24' width='6' height='30' rx='2'/%3E%3C/g%3E%3C/svg%3E">
+<meta name="theme-color" content="#0f0e0b">
+<script>(function(){var t="dark";try{var s=localStorage.getItem("beatprep.theme");if(s==="light"||s==="dark")t=s}catch(e){}document.documentElement.setAttribute("data-theme",t)})();</script>
+<meta name="description" content="Beat-Prep: a beat calculator for memoir. Enter your word count and see where every turn of a true story should land. By Robyn Linn.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+Display:wdth,wght@62.5..100,300..500&family=Montserrat:wght@400;500;600&family=Spectral:ital,wght@0,400;0,500;1,400&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+:root{
+  color-scheme:dark;
+  --ground:#0f0e0b; --panel:#17160f; --sunk:#1f1d15; --field:#12110c;
+  --text:#e6e2d4; --body:#bdb8a6; --mute:#8b8675; --faint:#625e51;
+  --line:#2a281f; --line-strong:#3d3a2e;
+  --cream:#ebe5b0; --cream-soft:rgba(235,229,176,.13); --cream-line:rgba(235,229,176,.35);
+  --water:#6f93b3; --wood:#7fab78; --fire:#d4735a; --earth:#cfa456; --metal:#c4c1b6;
+  --display:"Noto Serif Display","Didot","Bodoni 72",Georgia,serif;
+  --caps:"Montserrat","Helvetica Neue",Arial,sans-serif;
+  --serif:"Spectral",Georgia,"Times New Roman",serif;
+  --sans:"Instrument Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  color-scheme:light;
+  --ground:#f4f2ea; --panel:#fbfaf5; --sunk:#ebe8dc; --field:#ffffff;
+  --text:#1c1a14; --body:#3f3c31; --mute:#6c6757; --faint:#9a9583;
+  --line:#dedacb; --line-strong:#c7c2b0;
+  --cream:#6a5c12; --cream-soft:rgba(106,92,18,.09); --cream-line:rgba(106,92,18,.35);
+  --water:#3d6687; --wood:#4c7a46; --fire:#b0482f; --earth:#9a7224; --metal:#7c7868;
+}}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --ground:#f4f2ea; --panel:#fbfaf5; --sunk:#ebe8dc; --field:#ffffff;
+  --text:#1c1a14; --body:#3f3c31; --mute:#6c6757; --faint:#9a9583;
+  --line:#dedacb; --line-strong:#c7c2b0;
+  --cream:#6a5c12; --cream-soft:rgba(106,92,18,.09); --cream-line:rgba(106,92,18,.35);
+  --water:#3d6687; --wood:#4c7a46; --fire:#b0482f; --earth:#9a7224; --metal:#7c7868;
+}
+*{box-sizing:border-box}
+html,body{background:var(--ground)}
+body{margin:0;color:var(--body);font-family:var(--sans);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1100px;margin:0 auto;padding-block:28px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* theme switch */
+.topbar{display:flex;justify-content:flex-end;margin-bottom:18px}
+.theme{display:inline-flex;border:1px solid var(--line-strong);border-radius:999px;padding:3px;gap:2px}
+.theme button{font-family:var(--caps);font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;border:0;border-radius:999px;padding:6px 12px;background:transparent;color:var(--mute);cursor:pointer}
+.theme button:hover{color:var(--text)}
+.theme button[aria-pressed="true"]{background:var(--cream);color:var(--ground)}
+
+/* masthead */
+header.mast{display:grid;grid-template-columns:auto minmax(0,1fr);gap:18px 40px;align-items:end;padding-bottom:26px;border-bottom:1px solid var(--line-strong);margin-bottom:26px}
+@media(max-width:760px){header.mast{grid-template-columns:1fr}}
+.brandmark{display:flex;align-items:center;gap:14px;font-family:var(--caps);font-size:11px;font-weight:600;letter-spacing:.34em;text-transform:uppercase;color:var(--cream);margin:0 0 22px;flex-wrap:wrap}
+.brandmark .rule{flex:0 0 auto;width:48px;height:1px;background:var(--cream-line)}
+.brandmark a{color:var(--mute);text-decoration:none;letter-spacing:.2em}
+.brandmark a:hover{color:var(--cream)}
+.kicker{font-family:var(--caps);font-size:10.5px;font-weight:500;letter-spacing:.28em;text-transform:uppercase;color:var(--mute);margin:0 0 14px}
+h1.sig{margin:0;font-family:var(--display);font-weight:300;font-stretch:62.5%;color:var(--cream);text-transform:uppercase;letter-spacing:.01em;line-height:.74;padding-bottom:.22em}
+h1.sig span{display:block;transform:scaleY(1.25);transform-origin:top center}
+h1.sig .l1,h1.sig .l2{font-size:clamp(76px,13vw,138px)}
+h1.sig .l2{margin-top:.5em}
+.mast .intro{max-width:56ch;padding-bottom:6px}
+.mast .intro p{margin:0 0 10px}
+.mast .intro p.lead{font-family:var(--serif);font-size:19px;line-height:1.45;color:var(--text)}
+.mast .intro p.privacy{font-size:13px;color:var(--mute)}
+
+/* controls */
+.modes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+@media(max-width:600px){.modes{grid-template-columns:1fr}}
+.mode{text-align:left;font:inherit;color:var(--body);background:var(--panel);border:1px solid var(--line-strong);border-radius:12px;padding:14px 16px;cursor:pointer}
+.mode b{display:block;font-family:var(--caps);font-size:12px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--text);margin-bottom:4px}
+.mode span{font-size:13.5px;color:var(--mute)}
+.mode[aria-checked="true"]{border-color:var(--cream);background:var(--cream-soft)}
+.mode[aria-checked="true"] b{color:var(--cream)}
+.inputs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:26px}
+@media(max-width:820px){.inputs{grid-template-columns:1fr 1fr}}
+.inputs label{display:flex;flex-direction:column;gap:6px;font-family:var(--caps);font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
+.inputs input,.inputs select{font:500 18px/1.2 var(--sans);color:var(--text);background:var(--field);border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;width:100%;min-width:0}
+.inputs input:focus,.inputs select:focus{outline:2px solid var(--cream-line);border-color:var(--cream)}
+.inputs .hint{grid-column:1/-1;font-size:13px;color:var(--mute);margin:0}
+
+/* timeline */
+.tl{margin:0 0 10px}
+.bar{position:relative;height:46px;border-radius:8px;background:var(--sunk);border:1px solid var(--line);overflow:hidden}
+.seg{position:absolute;top:0;bottom:0;display:flex;align-items:center;justify-content:center;font-family:var(--caps);font-size:10px;font-weight:600;letter-spacing:.14em;color:var(--text);border-right:1px solid var(--ground)}
+.seg.span{background:var(--cream-soft)}
+.seg.alt{background:transparent}
+.tick{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--cream)}
+.tick i{position:absolute;top:4px;left:5px;font:600 10px/1 var(--caps);color:var(--cream);font-style:normal}
+.here{position:absolute;top:-6px;bottom:-6px;width:0;border-left:2px dashed var(--text)}
+.scale{display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:6px;font-variant-numeric:tabular-nums}
+.status{font-family:var(--serif);font-size:18px;line-height:1.45;color:var(--text);margin:16px 0 24px;padding:14px 16px;border-left:2px solid var(--cream);background:var(--panel);border-radius:0 10px 10px 0}
+.status:empty{display:none}
+
+.listhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin:8px 0 14px}
+.listhead h2{margin:0;font-family:var(--caps);font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--cream)}
+.tools{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.tools label{font-size:13px;color:var(--mute);display:flex;gap:6px;align-items:center;cursor:pointer}
+.pill{font-family:var(--caps);font-size:11px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;border:1px solid var(--cream);color:var(--cream);background:transparent;border-radius:999px;padding:9px 16px;cursor:pointer}
+.pill:hover{background:var(--cream-soft)}
+
+/* beat cards */
+.beats{display:flex;flex-direction:column;gap:12px}
+.beat{display:grid;grid-template-columns:190px minmax(0,1fr);gap:8px 24px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;border-left:3px solid var(--line-strong)}
+.beat.now{border-color:var(--cream-line);border-left-color:var(--cream)}
+@media(max-width:700px){.beat{grid-template-columns:1fr}}
+.beat .num{font-family:var(--caps);font-size:10px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--mute);margin:0 0 4px}
+.beat h3{margin:0 0 10px;font-family:var(--serif);font-weight:500;font-size:23px;line-height:1.15;color:var(--text)}
+.where{font-variant-numeric:tabular-nums}
+.where .w{font-size:20px;font-weight:600;color:var(--cream);display:block;line-height:1.2}
+.where .p{font-size:13px;color:var(--mute);display:block;margin-top:2px}
+.tag{display:inline-block;margin-top:10px;font-family:var(--caps);font-size:9.5px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;padding:4px 8px;border-radius:999px;border:1px solid var(--line-strong);color:var(--mute)}
+.tag.q{border-color:var(--cream-line);color:var(--cream)}
+.beat .what{margin:0 0 10px;color:var(--body)}
+.beat .ask{margin:0 0 10px;font-family:var(--serif);font-style:italic;font-size:17px;color:var(--text)}
+.beat .ex{margin:0;font-size:14px;color:var(--mute);padding-top:10px;border-top:1px solid var(--line)}
+.beat .ex b{font-family:var(--caps);font-size:9.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin-right:6px}
+.beat .push{margin:0 0 10px;font-size:14px;color:var(--body)}
+.beat .push b{font-family:var(--caps);font-size:9.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);margin-right:6px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips span{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--sunk);color:var(--body)}
+.noex .ex{display:none}
+.exnote{font-size:13px;color:var(--mute);margin:0 0 14px}
+.noex .exnote{display:none}
+
+/* your chapters */
+.lbl{font-family:var(--caps);font-size:10px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);margin:0 0 6px}
+.draftbox{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 18px 20px;margin:0 0 30px}
+.dhead h2{margin:0 0 4px;font-family:var(--caps);font-size:12px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--cream)}
+.dhead p{margin:0 0 14px;font-size:13.5px;color:var(--mute)}
+.chrow{display:grid;grid-template-columns:28px minmax(0,1fr) 110px 170px 32px;gap:8px;align-items:center;margin-bottom:6px}
+@media(max-width:600px){.chrow{grid-template-columns:24px minmax(0,1fr) 96px 28px}.chrow .cp{grid-column:2/4;grid-row:2;margin-top:-2px}}
+.chrow input{font:15px/1.3 var(--sans);color:var(--text);background:var(--field);border:1px solid var(--line-strong);border-radius:8px;padding:8px 10px;width:100%;min-width:0}
+.chrow input:focus{outline:2px solid var(--cream-line);border-color:var(--cream)}
+.cn{font-family:var(--caps);font-size:11px;font-weight:600;color:var(--mute);text-align:right}
+.cp{font-size:12.5px;color:var(--mute);font-variant-numeric:tabular-nums}
+.cp.heavy{color:var(--fire)} .cp.light{color:var(--water)}
+.x{border:0;background:transparent;color:var(--faint);font-size:20px;line-height:1;cursor:pointer;padding:4px}
+.x:hover{color:var(--text)}
+.chbtns{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0 0}
+.pill.ghost{border-color:var(--line-strong);color:var(--body)}
+.linkbtn{border:0;background:none;color:var(--mute);text-decoration:underline;cursor:pointer;font:13px var(--sans)}
+.paste textarea{display:block;width:100%;font:14px/1.5 var(--sans);color:var(--text);background:var(--field);border:1px solid var(--line-strong);border-radius:8px;padding:10px 12px;margin:12px 0 8px;resize:vertical}
+#draftTl{margin-top:20px}
+.dseg{position:absolute;top:0;bottom:0;border-right:2px solid var(--ground);background:var(--cream-soft);display:flex;align-items:center;justify-content:center;font:600 10px/1 var(--caps);color:var(--mute);overflow:hidden}
+.dseg.heavy{background:color-mix(in srgb,var(--fire) 30%,transparent);color:var(--text)}
+.dseg.light{background:color-mix(in srgb,var(--water) 24%,transparent)}
+.tick.d i{top:auto;bottom:4px}
+.plan{display:grid;grid-template-columns:1fr 1fr;gap:18px 24px;margin-top:22px}
+@media(max-width:700px){.plan{grid-template-columns:1fr}}
+.plan .next{grid-column:1/-1;border-left:2px solid var(--cream);padding:12px 16px;background:var(--cream-soft);border-radius:0 10px 10px 0}
+.plan h4{margin:0 0 8px;font-family:var(--caps);font-size:10.5px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:var(--cream)}
+.plan .next p{margin:0;font-family:var(--serif);font-size:18px;line-height:1.45;color:var(--text)}
+.plan ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:9px}
+.plan li{font-size:14px;color:var(--body)}
+.plan .have li::before{content:"\2713";color:var(--wood);margin-right:8px}
+.plan .empty{font-size:14px;color:var(--faint);margin:0}
+.needs label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.needs input{margin-top:4px;accent-color:var(--cream);flex:none}
+.needs li.done span{text-decoration:line-through;color:var(--faint)}
+.place{display:flex;flex-direction:column;gap:5px;margin-top:14px;font-family:var(--caps);font-size:9.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+.place select{font:14px var(--sans);color:var(--text);background:var(--field);border:1px solid var(--line-strong);border-radius:8px;padding:7px 8px;letter-spacing:0;text-transform:none;max-width:100%}
+.verdict{margin:6px 0 0;font-size:13px;line-height:1.4}
+.verdict.ok{color:var(--wood)} .verdict.late,.verdict.early{color:var(--fire)} .verdict.missing{color:var(--earth)} .verdict.unplaced{color:var(--faint)}
+
+/* footer */
+footer{margin-top:44px;padding-top:30px;border-top:1px solid var(--line-strong);display:flex;flex-direction:column;gap:16px}
+footer .door{font-family:var(--serif);font-size:clamp(19px,2.6vw,24px);line-height:1.35;color:var(--text);margin:0;max-width:34ch;text-wrap:balance}
+footer .btns{display:flex;flex-wrap:wrap;gap:10px}
+footer .btn-l{display:inline-flex;align-items:center;gap:10px;font-family:var(--caps);font-size:12px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;border-radius:999px;padding:13px 22px;border:1px solid var(--cream);background:var(--cream);color:var(--ground)}
+footer .btn-l:hover{opacity:.88}
+footer .maker{display:flex;flex-wrap:wrap;align-items:baseline;font-family:var(--caps);font-size:11px;font-weight:500;letter-spacing:.24em;text-transform:uppercase;color:var(--cream);margin:14px 0 0;line-height:1.5}
+footer .maker b{font-weight:inherit;white-space:nowrap}
+footer .maker span{color:var(--faint);font-weight:400;margin:0 .5em}
+footer .book{font-family:var(--serif);font-size:17px;color:var(--text);margin:0}
+footer .book em{font-style:normal;letter-spacing:.04em}
+footer .book .await{color:var(--mute);font-style:italic}
+footer .fine{display:flex;flex-wrap:wrap;gap:6px 24px;font-size:12px;color:var(--faint);margin:6px 0 0}
+
+@media print{
+  :root,:root[data-theme]{--ground:#fff;--panel:#fff;--sunk:#f1efe6;--field:#fff;--text:#111;--body:#222;--mute:#555;--faint:#777;--line:#ccc;--line-strong:#999;--cream:#5c500f;--cream-soft:rgba(92,80,15,.08);--cream-line:rgba(92,80,15,.4)}
+  .topbar,.modes,.inputs,.tools,footer .btns,.mast .intro p:not(.lead),.chbtns,.paste,.x,.dhead p{display:none}
+  h1.sig .l1,h1.sig .l2{font-size:64px}
+  .beat{break-inside:avoid;padding:12px 14px}
+  .wrap{padding:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="theme" role="group" aria-label="Colour theme">
+      <button type="button" data-set="dark">Dark</button>
+      <button type="button" data-set="light">Lite</button>
+    </div>
+  </div>
+  <header class="mast">
+    <div>
+      <p class="brandmark"><span>Ahara Media Group LLC</span><span class="rule" aria-hidden="true"></span><a href="https://www.instagram.com/robyn.linn/" target="_blank" rel="noopener">@robyn.linn</a></p>
+      <p class="kicker">A beat calculator for memoir</p>
+      <h1 class="sig" aria-label="Beat-Prep"><span class="l1">Beat-</span><span class="l2">Prep</span></h1>
+    </div>
+    <div class="intro">
+      <p class="lead">Beat sheets are built for screenplays and novels, where a villain closes in. In a memoir the pressure comes from inside: the person you were, the person telling it, and the distance between them.</p>
+      <p>Enter your word count and you'll see where each turn of a true story should land, down to the page. Add where your draft is now to find out which beat you're writing.</p>
+      <p class="privacy">Everything you type stays in this browser. Nothing is sent anywhere.</p>
+    </div>
+  </header>
+
+  <div class="modes" role="radiogroup" aria-label="Structure">
+    <button type="button" class="mode" role="radio" data-mode="arc"><b>Memoir Arc</b><span>Eleven beats from the life before to the life after.</span></button>
+    <button type="button" class="mode" role="radio" data-mode="elements"><b>Five Elements</b><span>Water, Wood, Fire, Earth, Metal: the story as one turn of the creation cycle.</span></button>
+  </div>
+
+  <div class="inputs">
+    <label>Target word count<input id="total" type="number" inputmode="numeric" min="1000" step="1000"></label>
+    <label>Where your draft is<input id="draft" type="number" inputmode="numeric" min="0" step="500" placeholder="optional"></label>
+    <label>Chapters<input id="chapters" type="number" inputmode="numeric" min="0" step="1" placeholder="optional"></label>
+    <label>Words per page<select id="wpp"><option value="250">250 (manuscript)</option><option value="300">300</option><option value="350">350 (printed book)</option></select></label>
+    <p class="hint">Most memoirs land between 70,000 and 90,000 words. The percentages are a map, not a law: a beat landing a few pages early or late is fine.</p>
+  </div>
+
+  <div class="tl">
+    <p class="lbl">The map</p>
+    <div class="bar" id="bar"></div>
+    <div class="scale" id="scale"></div>
+  </div>
+  <p class="status" id="status"></p>
+
+  <section class="draftbox">
+    <div class="dhead">
+      <h2>Your chapters</h2>
+      <p>List what you have, with word counts. Then mark which chapter each beat is in, using the select on each beat below. Real books are lopsided, and this shows you where.</p>
+    </div>
+    <div id="chrows"></div>
+    <div class="chbtns">
+      <button type="button" class="pill" id="addCh">+ Add chapter</button>
+      <button type="button" class="pill ghost" id="pasteToggle">Paste a list</button>
+      <button type="button" class="linkbtn" id="clearCh">Clear all</button>
+    </div>
+    <div class="paste" id="pasteBox" hidden>
+      <textarea id="pasteTxt" rows="6" placeholder="One chapter per line, word count at the end:&#10;Chapter 1: The Night Shift — 2,400&#10;Chapter 2 — 3,100&#10;Chapter 3: Charts on the Fridge, 19800"></textarea>
+      <button type="button" class="pill" id="pasteGo">Fill chapters</button>
+    </div>
+    <div class="tl" id="draftTl" hidden>
+      <p class="lbl">Your draft, by proportion</p>
+      <div class="bar" id="dbar"></div>
+    </div>
+    <div class="plan" id="plan"></div>
+  </section>
+
+  <div class="listhead">
+    <h2 id="listTitle"></h2>
+    <div class="tools">
+      <label><input type="checkbox" id="showEx"> Show examples</label>
+      <button type="button" class="pill" id="print">Print / Save PDF</button>
+    </div>
+  </div>
+  <div id="list">
+    <p class="exnote">The examples follow one invented memoir: a hospice nurse who spends twenty years caring for strangers, then has to care for her own mother.</p>
+    <div class="beats" id="beats"></div>
+  </div>
+
+  <footer>
+    <p class="door">The map shows where the turns go. If you want help with what goes in them:</p>
+    <div class="btns">
+      <a class="btn-l" href="https://www.alchemyattraction.com/write-with-robyn" target="_blank" rel="noopener">Write with Robyn</a>
+    </div>
+    <p class="maker"><b>Ahara Media Group LLC</b><span>|</span><b>Robyn Linn</b></p>
+    <p class="book">Author of <em>COME INTO ME: A MEMOIR</em> <span class="await">(awaiting publication)</span></p>
+    <p class="fine"><span>© 2026 Ahara Media Group LLC. All rights reserved.</span></p>
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+// a and b are percentages; a === b is a single point
+var ARC = [
+  {id:"before", name:"The Before", a:0, b:5,
+   what:"Open inside the belief, before it cracks. Write a scene, not a summary: the reader has to see the life that's about to break.",
+   ask:"What did you believe about yourself that this book proves wrong?",
+   ex:"She works nights at a hospice, hands out tissues and never cries. She's proud that nobody has ever seen her tired."},
+  {id:"inciting", name:"Inciting Event", a:10, b:10, tag:"q",
+   what:"Something happens that the old belief can't absorb. It happens to you, or you make it happen.",
+   ask:"What happened that you couldn't ignore?",
+   ex:"Her mother has a stroke and moves into the spare room. Now the patient is at home, and the shift never ends."},
+  {id:"tension", name:"Tension", a:10, b:25, tag:"q",
+   what:"You try to handle it the old way. It half works, which is why you keep doing it.",
+   ask:"How did you try to fix it without changing?",
+   ex:"She runs the house like a ward: charts on the fridge, meds by the hour. Her mother starts calling her “nurse.”"},
+  {id:"turning", name:"Turning Point", a:25, b:25, tag:"q",
+   what:"The door closes behind you. A choice or an event that means you can't go back to the Before.",
+   ask:"When was there no going back?",
+   ex:"She takes unpaid leave. For the first time in twenty years, nobody is paying her to care."},
+  {id:"stakes", name:"Stakes", a:25, b:50, tag:"q",
+   what:"Go deeper in and show what it costs: money, body, a marriage, a self-image. Each chapter should raise the price.",
+   ask:"What did it cost you, and what were you afraid it would cost?",
+   ex:"Her savings drain. Her husband sleeps on the couch so she can hear the monitor. She stops answering her friends."},
+  {id:"midpoint", name:"Midpoint", a:50, b:50,
+   what:"Understanding shifts: a false win, or a first look at the real problem. The story turns from what's happening to what's happening inside you.",
+   ask:"When did you first suspect the problem wasn't the situation?",
+   ex:"On a good day her mother says, “You were always better with strangers.” It's true, and she has never heard it before."},
+  {id:"unraveling", name:"Unraveling", a:50, b:75,
+   what:"The old strategy fails faster now. Whatever held you together starts coming apart.",
+   ask:"What started breaking?",
+   ex:"She snaps at a volunteer, misses her own doctor's appointment, falls asleep in the car in the driveway."},
+  {id:"low", name:"Low Point", a:75, b:75, tag:"s",
+   what:"Everything the belief promised is gone. The reader should feel the floor in their body.",
+   ask:"Where was the floor?",
+   ex:"She misses a dose and her mother lands in the ER. The nurse who never made mistakes made the one that mattered."},
+  {id:"climax", name:"Climax", a:80, b:90, tag:"s",
+   what:"You act in a way the Before-self never could. In memoir it's often quiet: asking, leaving, telling the truth.",
+   ask:"What did you do that the old you couldn't?",
+   ex:"She asks her brother to come for a month. Then she says the sentence she has never said out loud: “I can't do this alone.”"},
+  {id:"realization", name:"Realization", a:90, b:95, tag:"s",
+   what:"Name what you understand now. This beat belongs to the self telling the story. Earn it; don't preach it.",
+   ask:"What do you know now that you didn't at the start?",
+   ex:"Being needed was never the same as being loved. She had built a life where she couldn't tell the difference."},
+  {id:"reward", name:"The After", a:95, b:100, tag:"s",
+   what:"Close on an image that mirrors the Before, so the reader sees the change without being told.",
+   ask:"What does the same scene look like now?",
+   ex:"Back on nights at the hospice. When a daughter cries in the hallway, she sits down beside her and cries too."}
+];
+
+var ELEMENTS = [
+  {id:"water", name:"Water", a:0, b:20, color:"var(--water)", feel:"Fear",
+   what:"The source. Where you come from and what's hidden underneath: the family rules, the inherited fear, the thing that's frozen. Water holds still until something moves it.",
+   push:"Earth dams Water. What kept you still?",
+   ask:"What were you born into that you didn't choose?",
+   ex:"Night shifts, and a family rule nobody says out loud: you don't need anything. She learned it from her mother."},
+  {id:"wood", name:"Wood", a:20, b:40, color:"var(--wood)", feel:"Anger",
+   what:"The push. Something breaks ground and you reach for it, or against it. Anger is fuel here: the energy that gets you moving.",
+   push:"Metal cuts Wood. What tried to cut you back?",
+   ask:"What did you push toward, or push against?",
+   ex:"The stroke. She takes over, builds the system, takes leave. She's furious at the brother who doesn't come."},
+  {id:"fire", name:"Fire", a:40, b:60, color:"var(--fire)", feel:"Joy",
+   what:"The peak. Full exposure: love, devotion, the highest high, and whatever starts to burn. The midpoint lives here.",
+   push:"Water puts out Fire. What doused you?",
+   ask:"Where were you most alive, and what started to burn?",
+   ex:"Caregiving as devotion. A good day, a closeness she never had. Then the burn: exhaustion, the couch, her mother's sentence."},
+  {id:"earth", name:"Earth", a:60, b:80, color:"var(--earth)", feel:"Worry",
+   what:"The ground. Consequences land in the body, the bank account, the house. The ground holds you, or it gives way. The low point usually comes at the end of Earth.",
+   push:"Wood breaks up Earth. What broke the ground under you?",
+   ask:"What gave way, and what held?",
+   ex:"Money runs out, her body gives out, and the missed dose sends her mother to the ER."},
+  {id:"metal", name:"Metal", a:80, b:100, color:"var(--metal)", feel:"Grief",
+   what:"The letting go. Metal refines: you release what was never yours, grieve it, and keep what's precious. Realization and the closing image live here.",
+   push:"Fire melts Metal. What did you have to let melt?",
+   ask:"What did you let go of, and what was left?",
+   ex:"She asks for help and grieves the mother she wanted. What's left is her, crying next to a stranger in a hospice hallway."}
+];
+
+// a private copy can swap in its own examples and starting chapters
+var PRESET = window.BEATPREP_PRESET || null;
+var STORE = "beatprep.state"+(PRESET ? "."+PRESET.key : "");
+if(PRESET){
+  [ARC, ELEMENTS].forEach(function(set, j){
+    var ex = PRESET.ex[j ? "elements" : "arc"] || {};
+    set.forEach(function(b){ if(ex[b.id]) b.ex = ex[b.id]; });
+  });
+}
+
+var state = {mode:"arc", total:80000, draft:"", chapters:"", wpp:"250", ex:true, chs:[], place:{arc:{}, elements:{}}, done:{}};
+if(PRESET) for(var p in PRESET.state) state[p] = JSON.parse(JSON.stringify(PRESET.state[p]));
+try{ var saved = JSON.parse(localStorage.getItem(STORE)||"null"); if(saved) for(var k in state) if(k in saved) state[k]=saved[k]; }catch(e){}
+if(!Array.isArray(state.chs)) state.chs = [];
+if(!state.place || typeof state.place!=="object") state.place = {};
+if(!state.place.arc) state.place.arc = {};
+if(!state.place.elements) state.place.elements = {};
+if(!state.done || typeof state.done!=="object") state.done = {};
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} }
+
+var $ = function(id){ return document.getElementById(id); };
+function fmt(n){ return Math.round(n).toLocaleString("en-US"); }
+function words(pct, total){ return Math.round(total*pct/100/100)*100; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+function num(v){ var n = parseInt(String(v==null?"":v).replace(/[^\d]/g,""),10); return isNaN(n) ? 0 : n; }
+function uid(){ return Math.random().toString(36).slice(2,9); }
+function pctTxt(p){ return Math.round(p)+"%"; }
+
+// the user's chapters, with where each one sits in the draft (s/e in %)
+function draftInfo(){
+  var list = [], cum = 0, byId = {};
+  state.chs.forEach(function(c,i){ var w = num(c.w); var o = {id:c.id, n:i+1, t:c.t||"", w:w, start:cum}; list.push(o); byId[c.id] = o; cum += w; });
+  list.forEach(function(c){ c.s = cum ? c.start/cum*100 : 0; c.e = cum ? (c.start+c.w)/cum*100 : 0; c.share = cum ? c.w/cum*100 : 0; });
+  var avg = list.length ? cum/list.length : 0;
+  list.forEach(function(c){ c.heavy = list.length>=3 && c.w > avg*1.8; c.light = list.length>=3 && c.w>0 && c.w < avg*0.4; });
+  return {list:list, sum:cum, avg:avg, byId:byId};
+}
+function chAt(d, pct){
+  var withWords = d.list.filter(function(c){ return c.w>0; });
+  for(var i=0;i<withWords.length;i++) if(pct < withWords[i].e) return withWords[i];
+  return withWords[withWords.length-1];
+}
+function chLabel(c){ return "ch. "+c.n+(c.t ? " ("+c.t+")" : ""); }
+
+// where each beat actually sits in the draft, against the map
+function analyze(beats, d){
+  var pl = state.place[state.mode];
+  var maxN = 0, maxName = "";
+  return beats.map(function(b){
+    var r = {b:b, v:pl[b.id]||"", c:null, act:null, status:"unplaced"};
+    if(r.v==="none"){ r.status = "missing"; return r; }
+    var c = d.byId[r.v];
+    if(!c || !d.sum) return r;
+    r.c = c;
+    r.act = b.a===b.b ? (c.s+c.e)/2 : c.s;
+    r.status = ((b.a>=c.s && b.a<=c.e) || Math.abs(r.act-b.a)<=5) ? "ok" : (r.act>b.a ? "late" : "early");
+    if(c.n < maxN) r.before = maxName;
+    if(c.n >= maxN){ maxN = c.n; maxName = b.name; }
+    return r;
+  });
+}
+
+function verdictText(r){
+  if(r.status==="missing") return "Not written yet";
+  if(r.status==="unplaced") return "Not placed yet";
+  var at = "~"+pctTxt(r.act)+" of your draft";
+  if(r.status==="ok") return "On track · "+at;
+  return (r.status==="late" ? "Late" : "Early")+" · "+at+" (map: ~"+r.b.a+"%)";
+}
+
+function buildPlan(rs, d, total, isArc){
+  var have = [], need = [];
+  if(!d.list.length || !d.sum){
+    return {have:have, need:need, next:"Add your chapters with their word counts. Titles are optional; you can paste the whole list at once."};
+  }
+  var placed = rs.filter(function(r){ return r.c; });
+  var verb = function(b){ return b.a===b.b ? "lands" : "starts"; };
+
+  rs.forEach(function(r, i){
+    var b = r.b;
+    if(r.status==="ok") have.push(b.name+" · "+chLabel(r.c));
+    if(r.before) need.push({key:"order:"+b.id+":"+r.v, pri:1+i/100,
+      text:b.name+" is in "+chLabel(r.c)+", before "+r.before+" on your draft but after it on the map. Check that's on purpose."});
+    if(r.status==="late" || r.status==="early"){
+      var gap = Math.round(Math.abs(r.act-b.a)/100*d.sum/100)*100;
+      var t = b.name+" "+verb(b)+" around "+pctTxt(r.act)+" of your draft; the map puts it near "+b.a+"%. ";
+      t += r.status==="late"
+        ? "About "+fmt(gap)+" words come before it that the map doesn't call for. Compress the pages leading up to it, or move some of that material after it."
+          + (function(){ var h = d.list.filter(function(c){ return c.heavy && c.n < r.c.n; }); return h.length ? " Most of the extra weight sits in ch. "+h.map(function(c){ return c.n; }).join(" and ")+"." : ""; })()
+        : "The pages before it are about "+fmt(gap)+" words thin. Deepen what leads up to it, or hold the beat back.";
+      need.push({key:"off:"+b.id+":"+r.status+":"+Math.round(r.act), pri:2+i/100, text:t});
+    }
+    if(r.status==="missing"){
+      var c = chAt(d, b.a);
+      need.push({key:"miss:"+b.id, pri:4+i/100,
+        text:"Write your "+b.name+". On the map it "+verb(b)+" near "+b.a+"%, which falls in "+chLabel(c)+" of your draft (around "+fmt(words(b.a,total))+" words into the finished book)."});
+    }
+  });
+
+  d.list.forEach(function(c){
+    if(c.heavy){
+      var inside = placed.filter(function(r){ return r.c===c; }).map(function(r){ return r.b.name; });
+      var t = "Ch. "+c.n+(c.t?" ("+c.t+")":"")+" carries "+pctTxt(c.share)+" of your draft; your average chapter is "+pctTxt(100/d.list.length)+". ";
+      if(inside.length>=3) t += "It holds "+inside.join(", ")+". That's more than one chapter's work: split it where "+inside[1]+" begins, and again at "+inside[2]+".";
+      else if(inside.length===2) t += "It holds "+inside.join(" and ")+". Split it where "+inside[1]+" begins.";
+      else if(inside.length===1) t += "It holds "+inside[0]+". Find the scene break where the pressure shifts, and split there.";
+      else t += "Look for a scene break near its middle and split there.";
+      if(inside.length && rs.some(function(r){ return r.status==="late" && r.c.n > c.n; })) t += " Fixing this pulls the later beats back toward the map.";
+      need.push({key:"heavy:"+c.id+":"+c.w, pri:(inside.length ? 1.5 : 3)+c.n/1000, text:t});
+    }
+    if(c.light){
+      var other = c.n<d.list.length ? c.n+1 : c.n-1;
+      need.push({key:"light:"+c.id+":"+c.w, pri:5+c.n/1000,
+        text:"Ch. "+c.n+(c.t?" ("+c.t+")":"")+" is "+pctTxt(c.share)+" of your draft. If the short length is deliberate, keep it. If not, fold it into ch. "+other+" or deepen it."});
+    }
+  });
+
+  var unplaced = rs.filter(function(r){ return r.status==="unplaced"; }).map(function(r){ return r.b.name; });
+  if(unplaced.length) need.push({key:"place:"+unplaced.join("|"), pri:placed.length ? 4.5 : 0,
+    text:(placed.length ? "Place the rest: " : "Mark which chapter holds each "+(isArc?"beat":"element")+": ")+unplaced.join(", ")+". Use the select on each card below. If one isn't in the book yet, choose “Not written yet.”"});
+
+  if(d.sum < total*0.97) need.push({key:"words:"+total, pri:6, text:fmt(total-d.sum)+" words to go to reach your "+fmt(total)+" target."});
+  else if(d.sum > total*1.1) need.push({key:"over:"+total, pri:6, text:fmt(d.sum-total)+" words over your "+fmt(total)+" target. Cut once the structure holds, not before."});
+
+  need.sort(function(a,b){ return a.pri-b.pri; });
+  var first = need.filter(function(n){ return !state.done[n.key]; })[0];
+  var next = first ? first.text : (need.length ? "Everything on your list is ticked. Re-check your word counts, then keep writing." : "Your structure holds. Keep writing.");
+  return {have:have, need:need, next:next};
+}
+
+function arcLabel(b){
+  if(b.tag==="q") return '<span class="tag q">In your query</span>';
+  if(b.tag==="s") return '<span class="tag">Save for your synopsis</span>';
+  return "";
+}
+
+function whereHTML(b, total, wpp, ch, d){
+  var w1 = words(b.a,total), w2 = words(b.b,total);
+  var p1 = Math.max(1, Math.round(w1/wpp)), p2 = Math.max(1, Math.round(w2/wpp));
+  var chap = function(w){ return Math.min(ch, Math.max(1, Math.ceil(w/(total/ch)))); };
+  var pct = b.a===b.b ? "~"+b.a+"%" : b.a+"–"+b.b+"%";
+  var w = b.a===b.b ? "at "+fmt(w1) : fmt(w1)+"–"+fmt(w2);
+  var p = b.a===b.b ? "page "+p1 : "pages "+p1+"–"+p2;
+  if(d.sum){
+    var c1 = chAt(d,b.a), c2 = b.a===b.b ? c1 : chAt(d, b.b-0.01);
+    p += " · your ch. "+(c1===c2 ? c1.n : c1.n+"–"+c2.n);
+  } else if(ch){ var c1=chap(Math.max(w1,1)), c2=chap(Math.max(w2,1)); p += c1===c2 ? " · ch. "+c1 : " · ch. "+c1+"–"+c2; }
+  return '<div class="where"><span class="num">'+pct+'</span><span class="w">'+w+'</span><span class="p">words · '+p+'</span></div>';
+}
+
+function renderRows(){
+  $("chrows").innerHTML = state.chs.map(function(c,i){
+    return '<div class="chrow" data-id="'+esc(c.id)+'"><span class="cn">'+(i+1)+'</span>'
+      +'<input class="ct" placeholder="Title (optional)" aria-label="Chapter '+(i+1)+' title" value="'+esc(c.t)+'">'
+      +'<input class="cw" type="number" inputmode="numeric" min="0" step="100" placeholder="Words" aria-label="Chapter '+(i+1)+' words" value="'+esc(c.w)+'">'
+      +'<span class="cp"></span><button type="button" class="x" aria-label="Remove chapter '+(i+1)+'">×</button></div>';
+  }).join("");
+}
+
+function render(){
+  var total = Math.max(1000, num(state.total) || 80000);
+  var d = draftInfo();
+  var draft = d.sum || num(state.draft);
+  var ch = num(state.chapters);
+  var wpp = num(state.wpp) || 250;
+  var isArc = state.mode==="arc";
+  var beats = isArc ? ARC : ELEMENTS;
+  var rs = analyze(beats, d);
+
+  document.querySelectorAll(".mode").forEach(function(m){ m.setAttribute("aria-checked", m.dataset.mode===state.mode); });
+  $("list").classList.toggle("noex", !state.ex);
+  $("showEx").checked = state.ex;
+  $("listTitle").textContent = isArc ? "The Memoir Arc · "+fmt(total)+" words" : "Five Elements · "+fmt(total)+" words";
+  var dr = $("draft");
+  if(d.sum){ dr.value = d.sum; dr.readOnly = true; dr.title = "Adds up your chapters"; }
+  else if(dr.readOnly){ dr.readOnly = false; dr.title = ""; dr.value = state.draft; }
+
+  // the map
+  var bar = "";
+  if(isArc){
+    ARC.forEach(function(b,i){
+      if(b.a===b.b) bar += '<div class="tick" style="left:'+b.a+'%" title="'+esc(b.name)+'"><i>'+(i+1)+'</i></div>';
+      else bar += '<div class="seg '+(i%2?"alt":"span")+'" style="left:'+b.a+'%;width:'+(b.b-b.a)+'%" title="'+esc(b.name)+'">'+(i+1)+'</div>';
+    });
+  } else {
+    ELEMENTS.forEach(function(b){
+      bar += '<div class="seg" style="left:'+b.a+'%;width:'+(b.b-b.a)+'%;background:color-mix(in srgb,'+b.color+' 32%,transparent)">'+b.name.toUpperCase()+'</div>';
+    });
+  }
+  var here = draft>0 ? Math.min(100, draft/total*100) : null;
+  if(here!==null) bar += '<div class="here" style="left:'+here+'%" title="Your draft"></div>';
+  $("bar").innerHTML = bar;
+  $("scale").innerHTML = [0,25,50,75,100].map(function(p){ return "<span>"+fmt(total*p/100)+"</span>"; }).join("");
+
+  // where you are
+  var nowIds = {};
+  if(here!==null){
+    var inside = beats.filter(function(b){ return b.a!==b.b && here>=b.a && here<b.b; });
+    var next = beats.filter(function(b){ return b.a>here || (b.a===b.b && b.a>=here); })[0];
+    inside.forEach(function(b){ nowIds[b.id]=1; });
+    var msg = "At "+fmt(draft)+" words you're "+Math.round(here)+"% of the way to "+fmt(total);
+    if(here>=100) msg = "At "+fmt(draft)+" words you're at or past your target. The last pages belong to "+(isArc?"The After":"Metal")+".";
+    else {
+      msg += inside.length ? ", in "+inside.map(function(b){return b.name;}).join(" / ")+" territory." : ".";
+      if(next){ var nw = words(next.a,total); msg += " Next on the map: "+next.name+" at "+fmt(nw)+" words ("+fmt(Math.max(0,nw-draft))+" to go)."; }
+    }
+    $("status").textContent = msg;
+  } else $("status").textContent = "";
+
+  // your chapters: row readouts, proportional bar, plan
+  d.list.forEach(function(c){
+    var row = document.querySelector('.chrow[data-id="'+c.id+'"] .cp');
+    if(!row) return;
+    row.className = "cp"+(c.heavy?" heavy":c.light?" light":"");
+    row.textContent = c.w ? pctTxt(c.share)+" · "+fmt(c.start)+"–"+fmt(c.start+c.w)+(c.heavy?" · heavy":c.light?" · light":"") : "";
+  });
+  $("draftTl").hidden = !d.sum;
+  if(d.sum){
+    var db = d.list.map(function(c){
+      return c.w ? '<div class="dseg'+(c.heavy?" heavy":c.light?" light":"")+'" style="left:'+c.s+'%;width:'+c.share+'%" title="'+esc(chLabel(c))+'">'+(c.share>=2.5?c.n:"")+'</div>' : "";
+    }).join("");
+    // beats placed at the same spot share one tick
+    var spots = [];
+    rs.forEach(function(r,i){
+      if(!r.c) return;
+      var s = spots.filter(function(x){ return Math.abs(x.act-r.act)<0.5; })[0];
+      if(!s){ s = {act:r.act, color:r.b.color, labels:[], names:[]}; spots.push(s); }
+      s.labels.push(isArc ? i+1 : r.b.name.charAt(0)); s.names.push(r.b.name);
+    });
+    spots.forEach(function(s){
+      var col = isArc ? "" : ';background:'+s.color;
+      db += '<div class="tick d" style="left:'+s.act+'%'+col+'" title="'+esc(s.names.join(", "))+'"><i'+(isArc?"":' style="color:'+s.color+'"')+'>'+s.labels.join("·")+'</i></div>';
+    });
+    $("dbar").innerHTML = db;
+  }
+  var plan = buildPlan(rs, d, total, isArc);
+  var html = '<div class="next"><h4>Next step</h4><p>'+esc(plan.next)+'</p></div>';
+  if(d.sum){
+    html += '<div class="have"><h4>What you have</h4>'+(plan.have.length ? '<ul>'+plan.have.map(function(h){ return "<li>"+esc(h)+"</li>"; }).join("")+'</ul>' : '<p class="empty">Nothing placed on track yet.</p>')+'</div>';
+    html += '<div><h4>What you need</h4>'+(plan.need.length ? '<ul class="needs">'+plan.need.map(function(n){
+      var on = !!state.done[n.key];
+      return '<li'+(on?' class="done"':'')+'><label><input type="checkbox" data-key="'+esc(n.key)+'"'+(on?" checked":"")+'><span>'+esc(n.text)+'</span></label></li>';
+    }).join("")+'</ul>' : '<p class="empty">Nothing. The structure holds.</p>')+'</div>';
+  }
+  $("plan").innerHTML = html;
+
+  // cards
+  var opts = d.list.filter(function(c){ return c.w>0; });
+  $("beats").innerHTML = beats.map(function(b,i){
+    var r = rs[i];
+    var left = '<div><p class="num">'+(isArc?"Beat "+(i+1):"Element "+(i+1)+" · "+b.feel)+'</p>'+whereHTML(b,total,wpp,ch,d)+(isArc?arcLabel(b):"");
+    if(opts.length){
+      left += '<label class="place">'+(b.a===b.b||isArc?"In your draft":"Starts in your draft")+'<select data-beat="'+b.id+'"><option value="">Not placed</option><option value="none"'+(r.v==="none"?" selected":"")+'>Not written yet</option>'
+        + opts.map(function(c){ return '<option value="'+esc(c.id)+'"'+(r.v===c.id?" selected":"")+'>'+esc(chLabel(c))+'</option>'; }).join("")
+        + '</select></label><p class="verdict '+r.status+'">'+esc(verdictText(r))+'</p>';
+    }
+    left += '</div>';
+    var right = '<div><h3'+(isArc?"":' style="color:'+b.color+'"')+'>'+esc(b.name)+'</h3><p class="what">'+esc(b.what)+'</p>';
+    if(!isArc) right += '<p class="push"><b>Pressure</b>'+esc(b.push)+'</p>';
+    right += '<p class="ask">'+esc(b.ask)+'</p>';
+    if(!isArc){
+      var lands = ARC.filter(function(x){ return x.a>=b.a && (x.a<b.b || (b.b===100 && x.a===100)); });
+      if(lands.length) right += '<div class="chips">'+lands.map(function(x){ return "<span>"+esc(x.name)+"</span>"; }).join("")+'</div>';
+    }
+    right += '<p class="ex"><b>Example</b>'+esc(b.ex)+'</p></div>';
+    var cls = "beat"+(nowIds[b.id]?" now":"");
+    return '<article class="'+cls+'"'+(isArc?"":' style="border-left-color:'+b.color+'"')+'>'+left+right+'</article>';
+  }).join("");
+}
+
+// pasted lines like "Chapter 3: Title — 19,800" or "Title, 19800 words"
+function parseList(txt){
+  return txt.split(/\r?\n/).map(function(line){
+    line = line.trim(); if(!line) return null;
+    var m = line.match(/^(.*?)[\s,:;|\t–—-]*(\d{1,3}(?:[,.\s]\d{3})+|\d+)\s*(?:words?|w)?\.?\s*$/i);
+    if(!m) return null;
+    var t = m[1].trim().replace(/^(chapter|ch\.?)\s*\d+\s*[:.–—-]?\s*/i, "").replace(/[\s,:;|–—-]+$/,"");
+    return {id:uid(), t:t, w:String(num(m[2]))};
+  }).filter(Boolean);
+}
+
+// wire up the controls
+$("total").value = state.total; $("draft").value = state.draft; $("chapters").value = state.chapters; $("wpp").value = state.wpp;
+["total","draft","chapters","wpp"].forEach(function(id){
+  $(id).addEventListener("input", function(){ state[id] = this.value; save(); render(); });
+});
+document.querySelectorAll(".mode").forEach(function(m){
+  m.addEventListener("click", function(){ state.mode = m.dataset.mode; save(); render(); });
+});
+$("showEx").addEventListener("change", function(){ state.ex = this.checked; save(); render(); });
+$("print").addEventListener("click", function(){ window.print(); });
+
+function findCh(el){ var row = el.closest(".chrow"); return row && state.chs.filter(function(c){ return c.id===row.dataset.id; })[0]; }
+$("chrows").addEventListener("input", function(e){
+  var c = findCh(e.target); if(!c) return;
+  if(e.target.classList.contains("ct")) c.t = e.target.value; else c.w = e.target.value;
+  save(); render();
+});
+$("chrows").addEventListener("click", function(e){
+  if(!e.target.classList.contains("x")) return;
+  var c = findCh(e.target); if(!c) return;
+  state.chs = state.chs.filter(function(x){ return x!==c; });
+  save(); renderRows(); render();
+});
+$("addCh").addEventListener("click", function(){
+  state.chs.push({id:uid(), t:"", w:""}); save(); renderRows(); render();
+  var ins = document.querySelectorAll("#chrows .cw"); if(ins.length) ins[ins.length-1].focus();
+});
+$("pasteToggle").addEventListener("click", function(){ var p = $("pasteBox"); p.hidden = !p.hidden; if(!p.hidden) $("pasteTxt").focus(); });
+$("pasteGo").addEventListener("click", function(){
+  var rows = parseList($("pasteTxt").value);
+  if(!rows.length){ $("pasteTxt").focus(); return; }
+  if(state.chs.length && !confirm("Replace your "+state.chs.length+" chapters with these "+rows.length+"?")) return;
+  state.chs = rows; state.place = {arc:{}, elements:{}}; state.done = {};
+  $("pasteTxt").value = ""; $("pasteBox").hidden = true;
+  save(); renderRows(); render();
+});
+$("clearCh").addEventListener("click", function(){
+  if(!state.chs.length || !confirm("Clear all your chapters and beat placements?")) return;
+  state.chs = []; state.place = {arc:{}, elements:{}}; state.done = {};
+  save(); renderRows(); render();
+});
+$("beats").addEventListener("change", function(e){
+  if(!e.target.dataset.beat) return;
+  state.place[state.mode][e.target.dataset.beat] = e.target.value; save(); render();
+});
+$("plan").addEventListener("change", function(e){
+  var k = e.target.dataset.key; if(!k) return;
+  if(e.target.checked) state.done[k] = true; else delete state.done[k];
+  save(); render();
+});
+renderRows();
+
+function syncTheme(){
+  var t = document.documentElement.getAttribute("data-theme");
+  document.querySelectorAll(".theme button").forEach(function(b){ b.setAttribute("aria-pressed", b.dataset.set===t); });
+}
+document.querySelectorAll(".theme button").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.documentElement.setAttribute("data-theme", b.dataset.set);
+    try{ localStorage.setItem("beatprep.theme", b.dataset.set); }catch(e){}
+    syncTheme();
+  });
+});
+syncTheme();
+render();
+})();
+</script>
+</body>
+</html>
